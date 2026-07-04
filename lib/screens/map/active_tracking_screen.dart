@@ -6,6 +6,7 @@ import '../../services/firestore_service.dart';
 import '../../services/auth_service.dart';
 import 'proximity_radar_view.dart';
 import 'leaderboard_view.dart';
+import '../chat/chat_screen.dart';
 
 class ActiveTrackingScreen extends ConsumerStatefulWidget {
   final TripModel trip;
@@ -130,6 +131,17 @@ class _ActiveTrackingScreenState extends ConsumerState<ActiveTrackingScreen> {
           appBar: AppBar(
             title: Text(widget.trip.name),
             actions: [
+              IconButton(
+                icon: const Icon(Icons.chat_outlined),
+                tooltip: 'Chat',
+                onPressed: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (_) => ChatScreen(trip: widget.trip),
+                    ),
+                  );
+                },
+              ),
               IconButton(
                 icon: Icon(
                   _ghostModeActive ? Icons.visibility_off : Icons.visibility,

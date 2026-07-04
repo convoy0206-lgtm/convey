@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/user_model.dart';
 import '../models/trip_model.dart';
+import '../models/message_model.dart';
 
 /// Provider definition for [FirestoreService] to integrate with Riverpod.
 final firestoreServiceProvider = Provider<FirestoreService>((ref) {
@@ -137,5 +138,32 @@ class FirestoreService {
     final rand = Random();
     final code = List.generate(4, (index) => chars[rand.nextInt(chars.length)]).join();
     return 'TRIP-$code';
+  }
+
+  /// Stream collaborative chat messages in real-time.
+  Stream<List<MessageModel>> streamMessages(String tripId) {
+    return _tripsCollection
+        .doc(tripId)
+        .collection('messages')
+        .orderBy('timestamp', descending: true)
+        .snapshots()
+        .map((snapshot) {
+      return snapshot.docs.map((doc) {
+        final data = doc.data();
+        return MessageModel.fromMap(data, doc.id);
+      }).toList();
+    });
+  }
+
+  /// Send a new message to the group.
+  Future<void> sendMessage(String tripId, MessageModel message) async {
+    try {
+      await _tripsCollection
+          .doc(tripId)
+          .collection('messages')
+          .add(message.toMap());
+    } catch (e) {
+      throw Exception('Failed to send message: ${e.toString()}');
+    }
   }
 }

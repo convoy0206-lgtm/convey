@@ -28,10 +28,10 @@
 - [x] Implement Ghost Mode toggle logic updating `isGhostActive: true` and stopping location broadcast stream
 
 ## Phase 3: Collaborative Chat & FCM
-- [ ] Design Firestore chat collection schema and message models
-- [ ] Build Chat UI screen (`lib/screens/chat/chat_screen.dart`) with real-time stream subscription
-- [ ] Configure Firebase Cloud Messaging (FCM) credentials and permissions
-- [ ] Integrate background push notification receiver for immediate updates
+- [x] Design Firestore chat collection schema and message models
+- [x] Build Chat UI screen (`lib/screens/chat/chat_screen.dart`) with real-time stream subscription
+- [x] Configure Firebase Cloud Messaging (FCM) credentials and permissions
+- [x] Integrate background push notification receiver for immediate updates
 
 ## Phase 4: Expense Tracker & Offline Caching
 - [ ] Build local database wrapper (SQLite or Hive) and model synchronization queue (`lib/services/sync_service.dart`)

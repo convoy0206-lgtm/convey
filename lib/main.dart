@@ -5,6 +5,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'services/auth_service.dart';
 import 'screens/auth/login_screen.dart';
 import 'screens/dashboard/landing_screen.dart';
+import 'services/fcm_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -31,11 +32,22 @@ void main() async {
   );
 }
 
-class ConvoyApp extends ConsumerWidget {
+class ConvoyApp extends ConsumerStatefulWidget {
   const ConvoyApp({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<ConvoyApp> createState() => _ConvoyAppState();
+}
+
+class _ConvoyAppState extends ConsumerState<ConvoyApp> {
+  @override
+  void initState() {
+    super.initState();
+    ref.read(fcmServiceProvider).initializeFCM();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final authState = ref.watch(authStateChangesProvider);
 
     return MaterialApp(
