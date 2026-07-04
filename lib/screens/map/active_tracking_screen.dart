@@ -28,6 +28,7 @@ class _ActiveTrackingScreenState extends ConsumerState<ActiveTrackingScreen> {
   double _currentSpeed = 0.0;
   double _progressPercentage = 0.0;
   Map<String, dynamic> _groupLocations = {};
+  LocationService? _locationService; // cached to avoid ref.read in dispose
 
   @override
   void initState() {
@@ -36,7 +37,8 @@ class _ActiveTrackingScreenState extends ConsumerState<ActiveTrackingScreen> {
     
     // Start background location broadcast
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(locationServiceProvider).startTracking(
+      _locationService = ref.read(locationServiceProvider);
+      _locationService?.startTracking(
         widget.trip.id,
         ghostMode: _ghostModeActive,
       );
@@ -45,8 +47,8 @@ class _ActiveTrackingScreenState extends ConsumerState<ActiveTrackingScreen> {
 
   @override
   void dispose() {
-    // Stop broadcast tracking
-    ref.read(locationServiceProvider).stopTracking();
+    // Stop broadcast tracking — use cached reference, NOT ref.read (unsafe in dispose)
+    _locationService?.stopTracking();
     super.dispose();
   }
 
