@@ -8,15 +8,15 @@
 - [x] Verify the prototype page runs smoothly on MacBook browsers (Chrome/Safari)
 
 ## Phase 1: Flutter Project Setup, Auth, & Core Trip Setup (Screens 1, 2, 3)
-- [ ] Initialize Flutter project in workspace directory (`/Users/priteshkumar/.gemini/antigravity-ide/scratch/convoy`)
-- [ ] Install package dependencies (`firebase_core`, `firebase_auth`, `cloud_firestore`, `firebase_analytics`, `mixpanel_flutter`, `firebase_performance`, `firebase_crashlytics`, `provider` or `flutter_riverpod`)
-- [ ] Setup flavor structures for multi-project Firebase configuration (dev, staging, production)
-- [ ] Implement user model and Authentication Service (`lib/services/auth_service.dart`)
-- [ ] Implement Firebase Firestore Service (`lib/services/firestore_service.dart`)
-- [ ] Build Authentication screens (Login, Registration)
-- [ ] Build Screen 3: Landing Dashboard View (Option for Create Trip / Join Group)
-- [ ] Build Screen 2: Trip Setup Form UI (Fields for Title, Date, Time, Route path selection)
-- [ ] Build Screen 1: Live Map Preview UI with custom location and overlay map controls
+- [x] Initialize Flutter project in workspace directory (`/Users/priteshkumar/.gemini/antigravity-ide/scratch/convoy`)
+- [x] Install package dependencies (`firebase_core`, `firebase_auth`, `cloud_firestore`, `firebase_analytics`, `mixpanel_flutter`, `firebase_performance`, `firebase_crashlytics`, `provider` or `flutter_riverpod`)
+- [x] Setup flavor structures for multi-project Firebase configuration (dev, staging, production)
+- [x] Implement user model and Authentication Service (`lib/services/auth_service.dart`)
+- [x] Implement Firebase Firestore Service (`lib/services/firestore_service.dart`)
+- [x] Build Authentication screens (Login, Registration)
+- [x] Build Screen 3: Landing Dashboard View (Option for Create Trip / Join Group)
+- [x] Build Screen 2: Trip Setup Form UI (Fields for Title, Date, Time, Route path selection)
+- [x] Build Screen 1: Live Map Preview UI with custom location and overlay map controls
 
 ## Phase 2: Live Tracking, Proximity Radar, & Ghost Mode (Screens 4, 5, 6)
 - [ ] Configure background location tracking permissions and setup Google Maps SDK configurations
