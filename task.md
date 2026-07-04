@@ -34,11 +34,11 @@
 - [x] Integrate background push notification receiver for immediate updates
 
 ## Phase 4: Expense Tracker & Offline Caching
-- [ ] Build local database wrapper (SQLite or Hive) and model synchronization queue (`lib/services/sync_service.dart`)
-- [ ] Implement network status detector to swap network/local target repositories
-- [ ] Design Expense Tracker dashboard displaying total spendings and personal balance
-- [ ] Construct Add Expense form with multi-member split checkboxes
-- [ ] Create serverless Firebase Cloud Functions for net balance debt calculations
+- [x] Build local database wrapper (SQLite or Hive) and model synchronization queue (`lib/services/sync_service.dart`)
+- [x] Implement network status detector to swap network/local target repositories
+- [x] Design Expense Tracker dashboard displaying total spendings and personal balance
+- [x] Construct Add Expense form with multi-member split checkboxes
+- [x] Create serverless Firebase Cloud Functions for net balance debt calculations
 
 ## Phase 5: Day-by-Day Timeline & Itinerary (Screens 7, 8, 9)
 - [ ] Design Daily Itinerary schema supporting location references, timing, and travel details

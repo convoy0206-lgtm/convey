@@ -4,6 +4,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/user_model.dart';
 import '../models/trip_model.dart';
 import '../models/message_model.dart';
+import '../models/expense_model.dart';
+import 'sync_service.dart';
 
 /// Provider definition for [FirestoreService] to integrate with Riverpod.
 final firestoreServiceProvider = Provider<FirestoreService>((ref) {
@@ -164,6 +166,51 @@ class FirestoreService {
           .add(message.toMap());
     } catch (e) {
       throw Exception('Failed to send message: ${e.toString()}');
+    }
+  }
+
+  /// Stream expense tracking records.
+  Stream<List<ExpenseModel>> streamExpenses(String tripId) {
+    return _tripsCollection
+        .doc(tripId)
+        .collection('expenses')
+        .snapshots()
+        .map((snapshot) {
+      return snapshot.docs.map((doc) {
+        return ExpenseModel.fromMap(doc.data(), doc.id);
+      }).toList();
+    });
+  }
+
+  /// Add a new expense using SyncService support for offline queuing.
+  Future<void> addExpense(String tripId, ExpenseModel expense, SyncService syncService) async {
+    try {
+      final docId = expense.id.isEmpty 
+          ? _tripsCollection.doc(tripId).collection('expenses').doc().id 
+          : expense.id;
+
+      final expenseData = expense.copyWith(id: docId);
+
+      // Save to local SQLite cache first (so it's available offline)
+      final localMap = {
+        'id': docId,
+        'tripId': tripId,
+        'description': expenseData.description,
+        'amount': expenseData.amount,
+        'paidBy': expenseData.paidBy,
+        'splitWith': expenseData.splitWith.join(','),
+        'timestamp': expenseData.timestamp.toIso8601String(),
+      };
+      await syncService.saveLocalExpense(localMap);
+
+      // Write to Firestore / local sync queue
+      await syncService.performWrite(
+        collectionPath: 'trips/$tripId/expenses',
+        documentId: docId,
+        data: expenseData.toMap(),
+      );
+    } catch (e) {
+      throw Exception('Failed to save expense: ${e.toString()}');
     }
   }
 }
