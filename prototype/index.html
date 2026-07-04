@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Convoy - Interactive Web Prototype</title>
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <!-- CSS Stylesheet -->
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="app-container">
+    
+    <!-- LEFT SIDE: Simulator -->
+    <div class="simulator-section">
+      <div class="phone-frame">
+        <!-- Speaker & Camera Notch -->
+        <div class="phone-notch"></div>
+        
+        <!-- Status Bar -->
+        <div class="phone-status-bar">
+          <div class="status-time" id="statusTime">09:41</div>
+          <div class="status-icons">
+            <span class="icon-signal">📶</span>
+            <span class="icon-wifi" id="wifiIcon">📶</span>
+            <span class="icon-battery">🔋 85%</span>
+          </div>
+        </div>
+        
+        <!-- Screen Content Area -->
+        <div class="phone-screen" id="screenContent">
+          
+          <!-- Screen 3: Landing Screen -->
+          <div class="screen active" id="screen-landing">
+            <div class="landing-header">
+              <div class="logo-text">Con<span>voy</span></div>
+              <p class="tagline">Explore. Coordinate. Sync.</p>
+            </div>
+            <div class="landing-illustration">
+              <div class="orbit">
+                <div class="orbit-user user-1">👨‍🚀</div>
+                <div class="orbit-user user-2">👩‍🚀</div>
+                <div class="orbit-user user-3">🧑‍🚀</div>
+                <div class="radar-pulse"></div>
+              </div>
+            </div>
+            <div class="landing-action-card glass">
+              <h3>Ready to Explore?</h3>
+              <p>Join your travel squad and keep track of everyone live on a single topographic map.</p>
+              <button class="btn btn-primary" onclick="goToScreen('setup')">Create New Trip</button>
+              <button class="btn btn-secondary" onclick="simulateJoinTrip()">Join Existing Group</button>
+            </div>
+          </div>
+          
+          <!-- Screen 2: Trip Setup Form -->
+          <div class="screen" id="screen-setup">
+            <div class="screen-header">
+              <button class="back-btn" onclick="goToScreen('landing')">←</button>
+              <h2>New Trip Setup</h2>
+            </div>
+            <div class="setup-form-container">
+              <div class="input-group">
+                <label>Trip Title</label>
+                <input type="text" id="tripTitleInput" value="Sierra Nevada Expedition" placeholder="Enter trip name">
+              </div>
+              <div class="input-group">
+                <label>Start Date & Time</label>
+                <input type="datetime-local" id="tripDateInput" value="2026-07-15T08:00">
+              </div>
+              <div class="input-group">
+                <label>Select Route Path</label>
+                <select id="tripRouteSelect">
+                  <option value="sierra">Sierra Nevada Pass (Yosemite Valley)</option>
+                  <option value="pacific">Pacific Coast Highway Route</option>
+                  <option value="rockies">Colorado Rockies Scenic Trail</option>
+                </select>
+              </div>
+              <div class="input-group">
+                <label>Privacy Setting</label>
+                <div class="toggle-card glass">
+                  <div class="toggle-info">
+                    <span>Default Ghost Mode</span>
+                    <span class="subtitle">Start trip with location hidden</span>
+                  </div>
+                  <label class="switch">
+                    <input type="checkbox" id="defaultGhostToggle">
+                    <span class="slider"></span>
+                  </label>
+                </div>
+              </div>
+              <button class="btn btn-primary btn-block" onclick="createTripSubmit()">Initialize Map Preview</button>
+            </div>
+          </div>
+          
+          <!-- Screen 1: Live Map Preview (Setup Phase) -->
+          <div class="screen" id="screen-mappreview">
+            <div class="map-container" id="previewMapContainer">
+              <!-- Mock Map Visuals -->
+              <div class="mock-map map-style-preview">
+                <div class="map-grid"></div>
+                <div class="topographic-contours"></div>
+                <div class="route-line preview-route"></div>
+                <div class="marker start-marker">📍<span class="tooltip">Yosemite Start</span></div>
+                <div class="marker end-marker">🏁<span class="tooltip">Nevada Pass</span></div>
+              </div>
+            </div>
+            <div class="map-overlay-top">
+              <div class="glass-pill">Previewing Route</div>
+            </div>
+            <div class="map-overlay-bottom card-layout glass">
+              <div class="trip-details">
+                <h4 id="previewTripName">Sierra Nevada Expedition</h4>
+                <p>Route length: <strong>48.5 miles</strong></p>
+              </div>
+              <div class="invite-code-box">
+                <span class="code-label">Invite Code</span>
+                <strong class="code-value" id="inviteCodeDisplay">TRIP-5A9B</strong>
+              </div>
+              <button class="btn btn-primary btn-block" onclick="startActiveTracking()">Start Live Tracking</button>
+            </div>
+          </div>
+          
+          <!-- Screen 4: Live Map Active Tracking -->
+          <div class="screen" id="screen-mapactive">
+            <div class="map-container">
+              <div class="mock-map map-style-active" id="activeMapBg">
+                <div class="map-grid"></div>
+                <div class="topographic-contours"></div>
+                <div class="route-line active-route"></div>
+                <!-- Dynamic active users -->
+                <div class="marker avatar-marker marker-me" id="markerMe">
+                  <div class="avatar-ring"></div>
+                  <div class="avatar-img">ME</div>
+                  <div class="marker-pulse"></div>
+                </div>
+                <div class="marker avatar-marker marker-user1" id="markerUser1">
+                  <div class="avatar-ring"></div>
+                  <div class="avatar-img">MW</div>
+                  <div class="marker-pulse"></div>
+                </div>
+                <div class="marker avatar-marker marker-user2" id="markerUser2">
+                  <div class="avatar-ring"></div>
+                  <div class="avatar-img">JD</div>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Map Top Banner (Stats Overview) -->
+            <div class="map-overlay-top">
+              <div class="map-tracker-pill glass">
+                <div class="tracker-item">
+                  <span class="lbl">DISTANCE</span>
+                  <span class="val" id="activeDistVal">3.2 mi</span>
+                </div>
+                <div class="divider"></div>
+                <div class="tracker-item">
+                  <span class="lbl">SPEED</span>
+                  <span class="val" id="activeSpeedVal">65 MPH</span>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Map Bottom Card (Member Details) -->
+            <div class="map-overlay-bottom card-layout glass">
+              <div class="active-member-card">
+                <div class="member-header">
+                  <div class="member-avatar">MW</div>
+                  <div class="member-meta">
+                    <h4>Marcus Wright</h4>
+                    <span class="status-tag online">Active Now</span>
+                  </div>
+                  <div class="member-separation" id="memberSeparationText">4.1 miles back</div>
+                </div>
+              </div>
+              <div class="active-quick-actions">
+                <div class="toggle-card mini-toggle">
+                  <span>Ghost Mode</span>
+                  <label class="switch">
+                    <input type="checkbox" id="activeGhostToggle" onchange="toggleGhostMode(this.checked)">
+                    <span class="slider"></span>
+                  </label>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Screen 5: Proximity Radar -->
+          <div class="screen" id="screen-radar">
+            <div class="screen-header">
+              <h2>Proximity Radar</h2>
+            </div>
+            <div class="radar-container">
+              <!-- Radial sweeps -->
+              <div class="radar-scanner">
+                <div class="radar-beam"></div>
+                <div class="radar-circle circle-1"></div>
+                <div class="radar-circle circle-2"></div>
+                <div class="radar-circle circle-3"></div>
+                <div class="radar-user u-me">ME</div>
+                <div class="radar-user u-1" id="radarUser1">MW</div>
+                <div class="radar-user u-2" id="radarUser2">JD</div>
+              </div>
+              
+              <!-- Connection details -->
+              <div class="connection-card glass">
+                <div class="gauge-section">
+                  <div class="radial-gauge">
+                    <svg viewBox="0 0 36 36" class="circular-chart">
+                      <path class="circle-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                      <path class="circle-progress" id="radarProgress" stroke-dasharray="60, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                    </svg>
+                    <div class="gauge-percentage" id="radarPercentage">60%</div>
+                  </div>
+                  <div class="gauge-label">
+                    <h4>Mesh Sync</h4>
+                    <p>3/4 Peers Connected</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Screen 6: Trip Leaderboard & Statistics -->
+          <div class="screen" id="screen-stats">
+            <div class="screen-header">
+              <h2>Trip Leaderboard</h2>
+            </div>
+            <div class="stats-scroll-container">
+              
+              <!-- Leaderboard Standings -->
+              <div class="leaderboard-card glass">
+                <h3>Pathfinder Ranking</h3>
+                <div class="ranking-list">
+                  <div class="ranking-item">
+                    <span class="rank-num">1</span>
+                    <div class="rank-avatar">ME</div>
+                    <span class="rank-name">You (Leader)</span>
+                    <span class="rank-score">48.2 mi</span>
+                  </div>
+                  <div class="ranking-item">
+                    <span class="rank-num">2</span>
+                    <div class="rank-avatar">MW</div>
+                    <span class="rank-name">Marcus Wright</span>
+                    <span class="rank-score">44.1 mi</span>
+                  </div>
+                  <div class="ranking-item">
+                    <span class="rank-num">3</span>
+                    <div class="rank-avatar">JD</div>
+                    <span class="rank-name">John Doe</span>
+                    <span class="rank-score">41.8 mi</span>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Velocity graph -->
+              <div class="graph-card glass">
+                <h3>Velocity Flow (MPH)</h3>
+                <div class="velocity-graph">
+                  <div class="graph-line-container">
+                    <svg viewBox="0 0 100 40" class="sparkline">
+                      <path d="M 0 30 Q 20 10 40 25 T 80 5 T 100 20" fill="none" stroke="var(--neon-blue)" stroke-width="2"/>
+                    </svg>
+                  </div>
+                  <div class="graph-axes">
+                    <span>Yosemite</span>
+                    <span>Midway</span>
+                    <span>Nevada Pass</span>
+                  </div>
+                </div>
+                <div class="metric-row">
+                  <div class="metric-item">
+                    <span class="lbl">AVG SPEED</span>
+                    <strong class="val">54 MPH</strong>
+                  </div>
+                  <div class="metric-item">
+                    <span class="lbl">MAX SPEED</span>
+                    <strong class="val">72 MPH</strong>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Screen 9 / 7 / 8: Timeline Screens -->
+          <div class="screen" id="screen-timeline">
+            <div class="screen-header">
+              <h2>Journey Log</h2>
+              <div class="timeline-tabs">
+                <button class="time-tab active" id="tab-active" onclick="switchTimelineView('active')">Today</button>
+                <button class="time-tab" id="tab-history" onclick="switchTimelineView('history')">History</button>
+                <button class="time-tab" id="tab-empty" onclick="switchTimelineView('empty')">Overview</button>
+              </div>
+            </div>
+            
+            <div class="timeline-content-scroll">
+              
+              <!-- Screen 7: Active Timeline (Today) -->
+              <div class="timeline-sub-view" id="timeline-active-view">
+                <div class="timeline-container-list">
+                  <div class="timeline-node active">
+                    <div class="node-icon">🚩</div>
+                    <div class="node-card glass">
+                      <span class="node-time">14:20</span>
+                      <h4>Waypoint Checked: Yosemite Valley</h4>
+                      <p>All members cleared milestone 1.</p>
+                      <div class="node-preview-map">
+                        <div class="topo-preview"></div>
+                        <span>Contour Level: 4,200ft</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="timeline-node">
+                    <div class="node-icon">🌲</div>
+                    <div class="node-card glass">
+                      <span class="node-time">11:15</span>
+                      <h4>Rest Area Stop: Tuolumne Meadows</h4>
+                      <p>30 minutes stop-over for refueling.</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Screen 8: Timeline History & Alerts -->
+              <div class="timeline-sub-view hidden" id="timeline-history-view">
+                <div class="alert-banner warning">
+                  <span class="alert-icon">⚠️</span>
+                  <div class="alert-text">
+                    <strong>Weather Warning: High Winds</strong>
+                    <span>Pacific crest gust warnings active.</span>
+                  </div>
+                </div>
+                <div class="timeline-container-list">
+                  <div class="timeline-node historical">
+                    <div class="node-icon">🚗</div>
+                    <div class="node-card glass">
+                      <span class="node-time">Yesterday, 17:40</span>
+                      <h4>Unplanned Stop: Road Work Bypass</h4>
+                      <p>Delayed by 14 minutes due to highway lane merge.</p>
+                    </div>
+                  </div>
+                  <div class="timeline-node historical">
+                    <div class="node-icon">⛽</div>
+                    <div class="node-card glass">
+                      <span class="node-time">Yesterday, 13:02</span>
+                      <h4>Fuel Station Refill</h4>
+                      <p>Team 1 and Team 2 completed fuel stops.</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Screen 9: Timeline Empty State -->
+              <div class="timeline-sub-view hidden" id="timeline-empty-view">
+                <div class="empty-state-card">
+                  <div class="empty-illustration">🗺️</div>
+                  <h3>No Active Journey</h3>
+                  <p>You are currently not tracking a live trip. Initialize tracking on the Map view to populate this timeline feed.</p>
+                  <button class="btn btn-secondary" onclick="simulateStartEmptyJourney()">Simulate Run</button>
+                </div>
+              </div>
+              
+            </div>
+          </div>
+          
+        </div>
+        
+        <!-- Bottom Tab Navigation Bar -->
+        <div class="phone-nav-bar" id="phoneNavBar">
+          <button class="nav-item active" onclick="navTabSwitch('explore')">
+            <span class="nav-icon">🗺️</span>
+            <span class="nav-label">Explore</span>
+          </button>
+          <button class="nav-item" onclick="navTabSwitch('groups')">
+            <span class="nav-icon">📡</span>
+            <span class="nav-label">Groups</span>
+          </button>
+          <button class="nav-item" onclick="navTabSwitch('timeline')">
+            <span class="nav-icon">📋</span>
+            <span class="nav-label">Timeline</span>
+          </button>
+          <button class="nav-item" onclick="navTabSwitch('stats')">
+            <span class="nav-icon">📊</span>
+            <span class="nav-label">Stats</span>
+          </button>
+        </div>
+        
+        <!-- Phone Home Indicator Bar -->
+        <div class="phone-home-indicator"></div>
+      </div>
+    </div>
+    
+    <!-- RIGHT SIDE: Controls & Interactive Logging -->
+    <div class="controls-section glass">
+      <div class="controls-header">
+        <h2>Convoy Sandbox</h2>
+        <span class="env-badge dev">FLAVOR: DEVELOPMENT</span>
+      </div>
+      
+      <!-- Simulator State Control Sliders -->
+      <div class="control-panel-block">
+        <h3>Location & Map Simulator</h3>
+        
+        <div class="control-row">
+          <label>Speed (MPH): <span id="speedLabel">65</span></label>
+          <input type="range" id="speedSlider" min="0" max="120" value="65" oninput="updateSimulatorSpeed(this.value)">
+        </div>
+        
+        <div class="control-row">
+          <label>Trip Progress: <span id="progressLabel">15%</span></label>
+          <input type="range" id="progressSlider" min="0" max="100" value="15" oninput="updateSimulatorProgress(this.value)">
+        </div>
+        
+        <div class="control-row">
+          <label>Marcus Wright separation: <span id="sepLabel">4.1 mi</span></label>
+          <input type="range" id="sepSlider" min="0.5" max="25" step="0.5" value="4.1" oninput="updateSimulatorSeparation(this.value)">
+        </div>
+        
+        <div class="control-row inline">
+          <div class="toggle-card glass">
+            <div class="toggle-info">
+              <span>Network State</span>
+              <span class="subtitle" id="networkStateSubtitle">Connected to Firebase</span>
+            </div>
+            <label class="switch">
+              <input type="checkbox" id="networkToggle" checked onchange="toggleNetworkState(this.checked)">
+              <span class="slider"></span>
+            </label>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Device/Screen Quick Navigation Jump -->
+      <div class="control-panel-block">
+        <h3>Screen Prototype Selector</h3>
+        <div class="proto-grid">
+          <button class="btn btn-sm" onclick="forceGotoScreen('landing', 'explore')">S3: Landing</button>
+          <button class="btn btn-sm" onclick="forceGotoScreen('setup', 'explore')">S2: Setup Form</button>
+          <button class="btn btn-sm" onclick="forceGotoScreen('mappreview', 'explore')">S1: Map Preview</button>
+          <button class="btn btn-sm" onclick="forceGotoScreen('mapactive', 'explore')">S4: Map Active</button>
+          <button class="btn btn-sm" onclick="forceGotoScreen('radar', 'groups')">S5: Radar Sync</button>
+          <button class="btn btn-sm" onclick="forceGotoScreen('stats', 'stats')">S6: Standings</button>
+          <button class="btn btn-sm" onclick="forceGotoScreen('timeline-active', 'timeline')">S7: Today Timeline</button>
+          <button class="btn btn-sm" onclick="forceGotoScreen('timeline-history', 'timeline')">S8: Yesterday Alerts</button>
+          <button class="btn btn-sm" onclick="forceGotoScreen('timeline-empty', 'timeline')">S9: Timeline Empty</button>
+        </div>
+      </div>
+      
+      <!-- Event Logger Console (Firebase & Mixpanel mocks) -->
+      <div class="control-panel-block logger-block">
+        <h3>Analytics & System Log</h3>
+        <div class="log-console" id="logConsole">
+          <div class="log-entry system">[SYSTEM] Sandbox initialized. Listening for events...</div>
+        </div>
+        <button class="btn btn-sm btn-secondary" style="margin-top: 10px;" onclick="clearLogs()">Clear Logs</button>
+      </div>
+    </div>
+    
+  </div>
+
+  <!-- JavaScript logic -->
+  <script src="app.js"></script>
+</body>
+</html>
