@@ -8,22 +8,36 @@ import '../models/expense_model.dart';
 import '../models/itinerary_item_model.dart';
 import 'sync_service.dart';
 
+import 'package:flutter/foundation.dart';
+import '../main.dart' show firebaseAvailable;
+
 /// Provider definition for [FirestoreService] to integrate with Riverpod.
 final firestoreServiceProvider = Provider<FirestoreService>((ref) {
-  return FirestoreService(FirebaseFirestore.instance);
+  if (!firebaseAvailable) {
+    return FirestoreService(null);
+  }
+  try {
+    return FirestoreService(FirebaseFirestore.instance);
+  } catch (e) {
+    debugPrint("FirestoreService provider init error, falling back to mock: $e");
+    return FirestoreService(null);
+  }
 });
 
 class FirestoreService {
-  final FirebaseFirestore _firestore;
+  final FirebaseFirestore? _firestore;
 
   FirestoreService(this._firestore);
 
+  bool get _hasFirestore => _firestore != null;
+
   /// Collection references.
-  CollectionReference get _usersCollection => _firestore.collection('users');
-  CollectionReference get _tripsCollection => _firestore.collection('trips');
+  CollectionReference get _usersCollection => _firestore!.collection('users');
+  CollectionReference get _tripsCollection => _firestore!.collection('trips');
 
   /// Create or update user profile document in Firestore.
   Future<void> createUserDocument(UserModel user) async {
+    if (!_hasFirestore) return;
     try {
       await _usersCollection.doc(user.uid).set(user.toMap(), SetOptions(merge: true));
     } catch (e) {
@@ -33,6 +47,7 @@ class FirestoreService {
 
   /// Retrieve user profile document.
   Future<UserModel?> getUserDocument(String uid) async {
+    if (!_hasFirestore) return null;
     try {
       final doc = await _usersCollection.doc(uid).get();
       if (doc.exists && doc.data() != null) {
@@ -49,9 +64,18 @@ class FirestoreService {
     required String name,
     required String creatorUid,
   }) async {
+    final String inviteCode = _generateInviteCode();
+    if (!_hasFirestore) {
+      // Return mock trip in offline/mock mode
+      return TripModel(
+        id: 'mock_trip_${DateTime.now().millisecondsSinceEpoch}',
+        name: name,
+        inviteCode: inviteCode,
+        members: [creatorUid],
+        isGhostActive: false,
+      );
+    }
     try {
-      final String inviteCode = _generateInviteCode();
-      
       final docRef = await _tripsCollection.add({
         'name': name,
         'inviteCode': inviteCode,
@@ -77,6 +101,9 @@ class FirestoreService {
     required String inviteCode,
     required String userUid,
   }) async {
+    if (!_hasFirestore) {
+      throw Exception('Firebase not available in mock mode.');
+    }
     try {
       final querySnapshot = await _tripsCollection
           .where('inviteCode', isEqualTo: inviteCode.toUpperCase().trim())
@@ -113,6 +140,7 @@ class FirestoreService {
 
   /// Stream trip updates in real-time.
   Stream<TripModel?> streamTrip(String tripId) {
+    if (!_hasFirestore) return Stream.value(null);
     return _tripsCollection.doc(tripId).snapshots().map((snapshot) {
       if (snapshot.exists && snapshot.data() != null) {
         return TripModel.fromMap(snapshot.data() as Map<String, dynamic>, snapshot.id);
@@ -126,6 +154,7 @@ class FirestoreService {
     required String tripId,
     required bool isGhostActive,
   }) async {
+    if (!_hasFirestore) return;
     try {
       await _tripsCollection.doc(tripId).update({
         'isGhostActive': isGhostActive,
@@ -145,6 +174,7 @@ class FirestoreService {
 
   /// Stream collaborative chat messages in real-time.
   Stream<List<MessageModel>> streamMessages(String tripId) {
+    if (!_hasFirestore) return Stream.value([]);
     return _tripsCollection
         .doc(tripId)
         .collection('messages')
@@ -160,6 +190,7 @@ class FirestoreService {
 
   /// Send a new message to the group.
   Future<void> sendMessage(String tripId, MessageModel message) async {
+    if (!_hasFirestore) return;
     try {
       await _tripsCollection
           .doc(tripId)
@@ -172,6 +203,7 @@ class FirestoreService {
 
   /// Stream expense tracking records.
   Stream<List<ExpenseModel>> streamExpenses(String tripId) {
+    if (!_hasFirestore) return Stream.value([]);
     return _tripsCollection
         .doc(tripId)
         .collection('expenses')
@@ -186,8 +218,10 @@ class FirestoreService {
   /// Add a new expense using SyncService support for offline queuing.
   Future<void> addExpense(String tripId, ExpenseModel expense, SyncService syncService) async {
     try {
-      final docId = expense.id.isEmpty 
-          ? _tripsCollection.doc(tripId).collection('expenses').doc().id 
+      final docId = (expense.id.isEmpty)
+          ? (_hasFirestore
+              ? _tripsCollection.doc(tripId).collection('expenses').doc().id
+              : 'local_${DateTime.now().millisecondsSinceEpoch}')
           : expense.id;
 
       final expenseData = expense.copyWith(id: docId);
@@ -217,6 +251,7 @@ class FirestoreService {
 
   /// Stream itinerary details in real-time.
   Stream<List<ItineraryItemModel>> streamItinerary(String tripId) {
+    if (!_hasFirestore) return Stream.value([]);
     return _tripsCollection
         .doc(tripId)
         .collection('itinerary')
@@ -230,6 +265,7 @@ class FirestoreService {
 
   /// Add a new itinerary item/milestone checkpoint.
   Future<void> addItineraryItem(String tripId, ItineraryItemModel item) async {
+    if (!_hasFirestore) return;
     try {
       final docId = item.id.isEmpty
           ? _tripsCollection.doc(tripId).collection('itinerary').doc().id

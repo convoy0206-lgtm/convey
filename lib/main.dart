@@ -7,6 +7,11 @@ import 'screens/auth/login_screen.dart';
 import 'screens/dashboard/landing_screen.dart';
 import 'services/fcm_service.dart';
 
+/// Global flag indicating whether Firebase was successfully initialized.
+/// Used by service providers to decide whether to connect to real Firebase
+/// or fall back to mock/offline mode for testing without a config file.
+bool firebaseAvailable = false;
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   
@@ -20,8 +25,11 @@ void main() async {
   // Initialize Firebase (relies on native config directories setup)
   try {
     await Firebase.initializeApp();
+    firebaseAvailable = true;
+    debugPrint("Firebase initialized successfully.");
   } catch (e) {
-    debugPrint("Firebase Initialization Skip: Please drop google-services.json / GoogleService-Info.plist files: $e");
+    firebaseAvailable = false;
+    debugPrint("Firebase Initialization Skip (mock mode active): $e");
   }
 
   runApp(
@@ -43,6 +51,7 @@ class _ConvoyAppState extends ConsumerState<ConvoyApp> {
   @override
   void initState() {
     super.initState();
+    // Only initialize FCM when firebase is available
     ref.read(fcmServiceProvider).initializeFCM();
   }
 
@@ -63,7 +72,6 @@ class _ConvoyAppState extends ConsumerState<ConvoyApp> {
           primary: Color(0xFF0088FF),
           secondary: Color(0xFF00F0FF),
           surface: Color(0xFF12141C),
-          background: Color(0xFF090A0F),
           error: Color(0xFFEF4444),
         ),
         scaffoldBackgroundColor: const Color(0xFF090A0F),
@@ -74,14 +82,14 @@ class _ConvoyAppState extends ConsumerState<ConvoyApp> {
         ),
         inputDecorationTheme: InputDecorationTheme(
           filled: true,
-          fillColor: Colors.white.withOpacity(0.05),
+          fillColor: Colors.white.withValues(alpha: 0.05),
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
-            borderSide: BorderSide(color: Colors.white.withOpacity(0.08)),
+            borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.08)),
           ),
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
-            borderSide: BorderSide(color: Colors.white.withOpacity(0.08)),
+            borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.08)),
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),

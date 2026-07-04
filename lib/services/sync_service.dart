@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart' as p;
+import '../main.dart' show firebaseAvailable;
 
 /// Provider definition for [SyncService] to integrate with Riverpod.
 final syncServiceProvider = Provider<SyncService>((ref) {
@@ -74,7 +75,7 @@ class SyncService {
   }) async {
     await initDatabase();
 
-    if (_isOnline) {
+    if (_isOnline && firebaseAvailable) {
       try {
         final docRef = FirebaseFirestore.instance.collection(collectionPath).doc(documentId);
         if (action == 'SET') {
@@ -124,6 +125,11 @@ class SyncService {
         
         final collectionPath = pathSegments.sublist(0, pathSegments.length - 1).join('/');
         final docId = pathSegments.last;
+
+        if (!firebaseAvailable) {
+          debugPrint('Firebase not available: skipping sync queue flush.');
+          return;
+        }
 
         final docRef = FirebaseFirestore.instance.collection(collectionPath).doc(docId);
         

@@ -1,10 +1,28 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../main.dart' show firebaseAvailable;
 import '../models/user_model.dart';
+
+/// Mock user used when Firebase is not available (demo/test mode).
+const _mockUser = UserModel(
+  uid: 'mock_uid_12345',
+  email: 'trailblazer@convoy.com',
+  displayName: 'Yosemite Trailblazer',
+  photoUrl: '',
+);
 
 /// Provider definition for [AuthService] to integrate with Riverpod.
 final authServiceProvider = Provider<AuthService>((ref) {
-  return AuthService(FirebaseAuth.instance);
+  if (!firebaseAvailable) {
+    return AuthService(null);
+  }
+  try {
+    return AuthService(FirebaseAuth.instance);
+  } catch (e) {
+    debugPrint("FirebaseAuth not available, using mock: $e");
+    return AuthService(null);
+  }
 });
 
 /// StreamProvider to track user authentication changes.
@@ -14,7 +32,7 @@ final authStateChangesProvider = StreamProvider<UserModel?>((ref) {
 });
 
 class AuthService {
-  final FirebaseAuth _firebaseAuth;
+  final FirebaseAuth? _firebaseAuth;
 
   AuthService(this._firebaseAuth);
 
@@ -31,12 +49,17 @@ class AuthService {
 
   /// Exposes a stream of authentication state changes mapped to our [UserModel].
   Stream<UserModel?> get authStateChanges {
-    return _firebaseAuth.authStateChanges().map(_userFromFirebase);
+    if (_firebaseAuth == null) {
+      // Mock mode: immediately emit a logged-in mock user for local testing
+      return Stream.value(_mockUser);
+    }
+    return _firebaseAuth!.authStateChanges().map(_userFromFirebase);
   }
 
   /// Retrieve current authenticated user directly.
   UserModel? get currentUser {
-    return _userFromFirebase(_firebaseAuth.currentUser);
+    if (_firebaseAuth == null) return _mockUser;
+    return _userFromFirebase(_firebaseAuth!.currentUser);
   }
 
   /// User Registration using email and password.
@@ -45,18 +68,17 @@ class AuthService {
     required String password,
     required String displayName,
   }) async {
+    if (_firebaseAuth == null) return _mockUser;
     try {
-      final UserCredential credential = await _firebaseAuth.createUserWithEmailAndPassword(
+      final UserCredential credential = await _firebaseAuth!.createUserWithEmailAndPassword(
         email: email,
         password: password,
       );
       final User? user = credential.user;
       if (user != null) {
-        // Set display name in Firebase authentication profile
         await user.updateDisplayName(displayName);
-        // Refresh profile data
         await user.reload();
-        return _userFromFirebase(_firebaseAuth.currentUser);
+        return _userFromFirebase(_firebaseAuth!.currentUser);
       }
       return null;
     } on FirebaseAuthException catch (e) {
@@ -69,8 +91,9 @@ class AuthService {
     required String email,
     required String password,
   }) async {
+    if (_firebaseAuth == null) return _mockUser;
     try {
-      final UserCredential credential = await _firebaseAuth.signInWithEmailAndPassword(
+      final UserCredential credential = await _firebaseAuth!.signInWithEmailAndPassword(
         email: email,
         password: password,
       );
@@ -82,8 +105,9 @@ class AuthService {
 
   /// Sign out the current user session.
   Future<void> signOut() async {
+    if (_firebaseAuth == null) return;
     try {
-      await _firebaseAuth.signOut();
+      await _firebaseAuth!.signOut();
     } catch (e) {
       throw Exception('Sign out failed: ${e.toString()}');
     }

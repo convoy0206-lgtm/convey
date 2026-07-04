@@ -157,6 +157,7 @@ class _TripSetupScreenState extends ConsumerState<TripSetupScreen> {
               // Route dropdown
               DropdownButtonFormField<String>(
                 initialValue: _selectedRoute,
+                isExpanded: true,
                 decoration: const InputDecoration(
                   labelText: 'Select Route Path',
                   prefixIcon: Icon(Icons.map_outlined),
@@ -164,15 +165,15 @@ class _TripSetupScreenState extends ConsumerState<TripSetupScreen> {
                 items: const [
                   DropdownMenuItem(
                     value: 'sierra',
-                    child: Text('Sierra Nevada Pass (Yosemite Valley)'),
+                    child: Text('Sierra Nevada Pass (Yosemite Valley)', overflow: TextOverflow.ellipsis),
                   ),
                   DropdownMenuItem(
                     value: 'pacific',
-                    child: Text('Pacific Coast Highway Route'),
+                    child: Text('Pacific Coast Highway Route', overflow: TextOverflow.ellipsis),
                   ),
                   DropdownMenuItem(
                     value: 'rockies',
-                    child: Text('Colorado Rockies Scenic Trail'),
+                    child: Text('Colorado Rockies Scenic Trail', overflow: TextOverflow.ellipsis),
                   ),
                 ],
                 onChanged: (val) {

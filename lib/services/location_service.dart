@@ -5,12 +5,19 @@ import 'package:flutter_background_geolocation/flutter_background_geolocation.da
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'auth_service.dart';
 
+import '../main.dart' show firebaseAvailable;
+
 /// Provider definition for [LocationService] to integrate with Riverpod.
 final locationServiceProvider = Provider<LocationService>((ref) {
-  return LocationService(
-    FirebaseFirestore.instance,
-    ref,
-  );
+  if (!firebaseAvailable) {
+    return LocationService(null, ref);
+  }
+  try {
+    return LocationService(FirebaseFirestore.instance, ref);
+  } catch (e) {
+    debugPrint("LocationService Firestore init error, mock mode: $e");
+    return LocationService(null, ref);
+  }
 });
 
 /// Exposes a stream of the current user's coordinate location updates.
@@ -57,7 +64,7 @@ class LocationData {
 }
 
 class LocationService {
-  final FirebaseFirestore _firestore;
+  final FirebaseFirestore? _firestore;
   final Ref _ref;
   final _locationController = StreamController<LocationData>.broadcast();
   bool _isTracking = false;
@@ -199,6 +206,7 @@ class LocationService {
 
   /// Write coordinate record to Firebase Firestore.
   Future<void> _broadcastToFirestore(String tripId, LocationData data) async {
+    if (_firestore == null) return; // Skip in mock mode
     final user = _ref.read(authServiceProvider).currentUser;
     if (user == null) return;
 
@@ -222,6 +230,7 @@ class LocationService {
 
   /// Exposes a stream of location updates for all active members in the trip.
   Stream<Map<String, dynamic>> streamGroupLocations(String tripId) {
+    if (_firestore == null) return Stream.value({}); // Empty map in mock mode
     return _firestore
         .collection('trips')
         .doc(tripId)
