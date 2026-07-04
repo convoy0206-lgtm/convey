@@ -8,6 +8,7 @@ import 'proximity_radar_view.dart';
 import 'leaderboard_view.dart';
 import '../chat/chat_screen.dart';
 import '../expenses/expense_screen.dart';
+import '../itinerary/itinerary_screen.dart';
 
 class ActiveTrackingScreen extends ConsumerStatefulWidget {
   final TripModel trip;
@@ -182,6 +183,11 @@ class _ActiveTrackingScreenState extends ConsumerState<ActiveTrackingScreen> {
                 selectedIcon: Icon(Icons.attach_money),
                 label: 'Expenses',
               ),
+              NavigationDestination(
+                icon: Icon(Icons.timeline_outlined),
+                selectedIcon: Icon(Icons.timeline),
+                label: 'Timeline',
+              ),
             ],
           ),
         );
@@ -204,6 +210,8 @@ class _ActiveTrackingScreenState extends ConsumerState<ActiveTrackingScreen> {
         );
       case 3:
         return ExpenseScreen(trip: widget.trip);
+      case 4:
+        return ItineraryScreen(trip: widget.trip);
       case 0:
       default:
         return _buildLiveMapContent(theme);

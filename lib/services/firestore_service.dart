@@ -5,6 +5,7 @@ import '../models/user_model.dart';
 import '../models/trip_model.dart';
 import '../models/message_model.dart';
 import '../models/expense_model.dart';
+import '../models/itinerary_item_model.dart';
 import 'sync_service.dart';
 
 /// Provider definition for [FirestoreService] to integrate with Riverpod.
@@ -211,6 +212,37 @@ class FirestoreService {
       );
     } catch (e) {
       throw Exception('Failed to save expense: ${e.toString()}');
+    }
+  }
+
+  /// Stream itinerary details in real-time.
+  Stream<List<ItineraryItemModel>> streamItinerary(String tripId) {
+    return _tripsCollection
+        .doc(tripId)
+        .collection('itinerary')
+        .snapshots()
+        .map((snapshot) {
+      return snapshot.docs.map((doc) {
+        return ItineraryItemModel.fromMap(doc.data(), doc.id);
+      }).toList();
+    });
+  }
+
+  /// Add a new itinerary item/milestone checkpoint.
+  Future<void> addItineraryItem(String tripId, ItineraryItemModel item) async {
+    try {
+      final docId = item.id.isEmpty
+          ? _tripsCollection.doc(tripId).collection('itinerary').doc().id
+          : item.id;
+      final itemData = item.copyWith(id: docId);
+      
+      await _tripsCollection
+          .doc(tripId)
+          .collection('itinerary')
+          .doc(docId)
+          .set(itemData.toMap(), SetOptions(merge: true));
+    } catch (e) {
+      throw Exception('Failed to add itinerary item: ${e.toString()}');
     }
   }
 }

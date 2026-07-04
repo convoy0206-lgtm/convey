@@ -40,13 +40,13 @@
 - [x] Construct Add Expense form with multi-member split checkboxes
 - [x] Create serverless Firebase Cloud Functions for net balance debt calculations
 
-## Phase 5: Day-by-Day Timeline & Itinerary (Screens 7, 8, 9)
-- [ ] Design Daily Itinerary schema supporting location references, timing, and travel details
-- [ ] Build Screen 9: Timeline empty state UI dashboard
-- [ ] Build Screen 7: Chronological milestone feed with topographic map preview cards
-- [ ] Build Screen 8: Timeline history and yesterday's notification feed (weather warning, stopped alerts)
-- [ ] Implement caching for itinerary distance/time metrics
-- [ ] Integrate external map deep-linking URLs for navigation directions (Apple/Google Maps apps)
+## Phase 5: Day-by-Day Itinerary & Timeline (Screens 7, 8, 9)
+- [x] Design Daily Itinerary schema supporting location references, timing, and travel details
+- [x] Build Itinerary empty state UI dashboard
+- [x] Build Chronological milestone feed with topographic map preview cards
+- [x] Build Screen 8: Timeline history and yesterday's notification feed (weather warning, stopped alerts)
+- [x] Implement caching for itinerary distance/time metrics
+- [x] Integrate external map deep-linking URLs for navigation directions (Apple/Google Maps apps)
 
 ## Phase 6: Shared Photo Album
 - [ ] Set up Firebase Cloud Storage bucket permissions and directories
