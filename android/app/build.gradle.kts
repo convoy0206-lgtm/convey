@@ -1,8 +1,18 @@
+import java.io.FileInputStream
+import java.util.Properties
+
 plugins {
     id("com.android.application")
     // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
     id("dev.flutter.flutter-gradle-plugin")
 }
+
+val envFile = project.rootProject.file("../.env")
+val envProperties = Properties()
+if (envFile.exists()) {
+    envProperties.load(FileInputStream(envFile))
+}
+val mapsKey = envProperties.getProperty("GOOGLE_MAPS_API_KEY_ANDROID") ?: ""
 
 android {
     namespace = "com.convoy.convoy"
@@ -39,15 +49,18 @@ android {
             dimension = "environment"
             applicationIdSuffix = ".dev"
             manifestPlaceholders["appName"] = "Convoy Dev"
+            manifestPlaceholders["googleMapsKey"] = mapsKey
         }
         create("staging") {
             dimension = "environment"
             applicationIdSuffix = ".staging"
             manifestPlaceholders["appName"] = "Convoy Staging"
+            manifestPlaceholders["googleMapsKey"] = mapsKey
         }
         create("prod") {
             dimension = "environment"
             manifestPlaceholders["appName"] = "Convoy"
+            manifestPlaceholders["googleMapsKey"] = mapsKey
         }
     }
 }

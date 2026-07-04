@@ -66,5 +66,18 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>Convoy requires location access to track progress along the trail.</string>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>Convoy requires background location access to broadcast coordinates to your travel group while the app is in the background.</string>
+	<key>NSLocationAlwaysUsageDescription</key>
+	<string>Convoy requires background location access to broadcast coordinates to your travel group while the app is in the background.</string>
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>location</string>
+		<string>fetch</string>
+	</array>
+	<key>GoogleMapsAPIKey</key>
+	<string>$(GOOGLE_MAPS_API_KEY_IOS)</string>
 </dict>
 </plist>

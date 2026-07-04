@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/services.dart';
 import '../../models/trip_model.dart';
+import 'active_tracking_screen.dart';
 
 class MapPreviewScreen extends ConsumerWidget {
   final TripModel trip;
@@ -207,8 +208,10 @@ class MapPreviewScreen extends ConsumerWidget {
                 
                 ElevatedButton(
                   onPressed: () {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Live Tracking starting... (Phase 2)')),
+                    Navigator.of(context).pushReplacement(
+                      MaterialPageRoute(
+                        builder: (_) => ActiveTrackingScreen(trip: trip),
+                      ),
                     );
                   },
                   style: ElevatedButton.styleFrom(

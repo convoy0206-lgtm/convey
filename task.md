@@ -19,13 +19,13 @@
 - [x] Build Screen 1: Live Map Preview UI with custom location and overlay map controls
 
 ## Phase 2: Live Tracking, Proximity Radar, & Ghost Mode (Screens 4, 5, 6)
-- [ ] Configure background location tracking permissions and setup Google Maps SDK configurations
-- [ ] Implement Location Service (`lib/services/location_service.dart`)
-- [ ] Design Screen 4: Active tracking map screen with progress bar, velocity tracker, and dynamic member panels
-- [ ] Build custom Marker overlays with avatar graphics
-- [ ] Design Screen 5: Proximity Radar and active groups view including sync progress gauges and radar scanning circle
-- [ ] Design Screen 6: Trip Leaderboard and velocity graph views
-- [ ] Implement Ghost Mode toggle logic updating `isGhostActive: true` and stopping location broadcast stream
+- [x] Configure background location tracking permissions and setup Google Maps SDK configurations
+- [x] Implement Location Service (`lib/services/location_service.dart`)
+- [x] Design Screen 4: Active tracking map screen with progress bar, velocity tracker, and dynamic member panels
+- [x] Build custom Marker overlays with avatar graphics
+- [x] Design Screen 5: Proximity Radar and active groups view including sync progress gauges and radar scanning circle
+- [x] Design Screen 6: Trip Leaderboard and velocity graph views
+- [x] Implement Ghost Mode toggle logic updating `isGhostActive: true` and stopping location broadcast stream
 
 ## Phase 3: Collaborative Chat & FCM
 - [ ] Design Firestore chat collection schema and message models
